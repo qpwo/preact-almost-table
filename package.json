@@ -1,0 +1,15 @@
+{
+  "name": "pretab",
+  "version": "1.0.0",
+  "description": "Zero-VDOM-diff 2D virtualization grid for Preact and React",
+  "main": "index.jsx",
+  "type": "module",
+  "exports": {
+    ".": "./index.jsx",
+    "./core": "./core.js"
+  },
+  "peerDependencies": {
+    "preact": "^10.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  }
+}
