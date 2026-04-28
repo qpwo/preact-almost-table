@@ -1,10 +1,3 @@
-# preact-almost-table
-
-2d windowing helpers for React and Preact.
-
-## Benchmarks
-
-Direct comparison from this repo's Playwright benchmark harness. Lower is better.
 
 ### 10,000 Rows x 20 Columns
 
