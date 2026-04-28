@@ -70,3 +70,7 @@ export function ExampleGrid() {
 - `<PretabSpacerRow grid={grid} height={px} />`
 
 See `core.js` for the pure math helpers.
+
+Sticky bottom scrolling is optional.
+Set stickyBottom: true in options to keep following the bottom while the user is already at the bottom.
+Default is false.

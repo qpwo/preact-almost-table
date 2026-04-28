@@ -6,6 +6,7 @@ export const PRETAB_DEFAULTS = Object.freeze({
   colWidth: 120,
   colWindow: 12,
   colOverscan: 4,
+  stickyBottom: false,
   scrollId: null,
 })
 
@@ -17,6 +18,7 @@ export function readPretabOptions(options = {}) {
     colWidth: readWholeNumber(options.colWidth, PRETAB_DEFAULTS.colWidth, 1),
     colWindow: readWholeNumber(options.colWindow, PRETAB_DEFAULTS.colWindow, 1),
     colOverscan: readWholeNumber(options.colOverscan, PRETAB_DEFAULTS.colOverscan, 0),
+    stickyBottom: Boolean(options.stickyBottom),
     scrollId: readScrollId(options.scrollId),
   }
 }

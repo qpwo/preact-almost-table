@@ -1,6 +1,6 @@
 {
   "name": "preact-almost-table",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "2d windowing helpers for React and Preact",
   "main": "index.jsx",
   "type": "module",

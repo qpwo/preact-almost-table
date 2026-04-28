@@ -1,5 +1,5 @@
 /** Pretab hook and tiny table helpers for 2D row/col windowed rendering in Preact/React. */
-import { useEffect, useMemo, useSyncExternalStore } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useSyncExternalStore } from 'react'
 import {
   PRETAB_DEFAULTS,
   readPretabOptions,
@@ -18,16 +18,21 @@ export function usePretabGrid(rows, columns, options = PRETAB_DEFAULTS) {
   const settings = useMemo(readPretabSettings.bind(null, options), [
     options?.rowHeight, options?.rowWindow, options?.rowOverscan,
     options?.colWidth, options?.colWindow, options?.colOverscan,
-    options?.scrollId,
+    options?.stickyBottom, options?.scrollId,
   ])
 
   const store = useMemo(createPretabStore.bind(null, settings), [
     settings.rowHeight, settings.rowOverscan,
     settings.colWidth, settings.colOverscan,
+    settings.stickyBottom,
   ])
   const pos = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
 
   useEffect(syncPretabScroll.bind(null, store, settings.scrollId), [store, settings.scrollId])
+  useLayoutEffect(() => {
+    if (!settings.stickyBottom) return
+    store.syncStickyBottom()
+  }, [store, settings.stickyBottom, rows.length])
 
   return useMemo(() => {
     const rowMath = readPretabWindow(rows.length, pos.rowStart, settings.rowHeight, settings.rowWindow, settings.rowOverscan)
@@ -125,10 +130,10 @@ function readScrollElement(scrollId) {
 
 function createPretabStore(settings) {
   let element = null
-  let snapshot = { rowStart: 0, colStart: 0 }
+  let snapshot = { rowStart: 0, colStart: 0, isAtBottom: true }
   const listeners = new Set()
 
-  return { attach, subscribe, getSnapshot }
+  return { attach, subscribe, getSnapshot, syncStickyBottom }
 
   function attach(nextElement) {
     if (element === nextElement) {
@@ -164,10 +169,24 @@ function createPretabStore(settings) {
   function update() {
     const nextRow = readPretabStart(element?.scrollTop ?? 0, settings.rowHeight, settings.rowOverscan)
     const nextCol = readPretabStart(element?.scrollLeft ?? 0, settings.colWidth, settings.colOverscan)
+    const isAtBottom = readIsAtBottom()
 
-    if (nextRow === snapshot.rowStart && nextCol === snapshot.colStart) return
-    snapshot = { rowStart: nextRow, colStart: nextCol }
+    if (nextRow === snapshot.rowStart && nextCol === snapshot.colStart && isAtBottom === snapshot.isAtBottom) return
+    snapshot = { rowStart: nextRow, colStart: nextCol, isAtBottom }
     emit()
+  }
+
+  function syncStickyBottom() {
+    if (!settings.stickyBottom) return
+    if (!element) return
+    if (!snapshot.isAtBottom) return
+    element.scrollTop = Math.max(0, element.scrollHeight - element.clientHeight)
+    update()
+  }
+
+  function readIsAtBottom() {
+    if (!element) return true
+    return element.scrollHeight - element.clientHeight - element.scrollTop <= settings.rowHeight
   }
 
   function emit() {
